@@ -1,7 +1,6 @@
-var tokenAddress="0xD723E36fc786Ce5E731218760C805BD0744A8bdc"; 
-var liquidityAddress="0xB7Cf0E0bFc008A787F543E889784a45FB2D430af";
+var tokenAddress="0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82"; 
+var liquidityAddress="0x0ed7e52944161450477ee417de9cd3a859b14fd0";
 var WalletAddress="0x000000000000000000000000000000000000dead";
-var WalletAddress2="0x79d9f178135431708c90e60e0180f8b42342a9b9";
 const web3 = new Web3('https://bsc-dataseed1.binance.org:443');
 var tokenPrice = 0
 
@@ -26,8 +25,8 @@ async function setTokenPrice() {
         $.ajax({url: "https://www.binance.com/api/v3/avgPrice?symbol=BNBUSDT", async: false, success: function( data ) {
             bnbPrice = data['price']
             contract.methods.getReserves().call(function(error, result){
-                tokenLocked = result['_reserve1']*0.00001
-                wbnbLocked = result['_reserve0']*0.000000000000000001
+                tokenLocked = result['_reserve0']*0.000000000000000001
+                wbnbLocked = result['_reserve1']*0.000000000000000001
                 
                 tokenPrice = wbnbLocked/tokenLocked*bnbPrice;
                 
@@ -46,16 +45,12 @@ async function setBurnBalance() {
 
           
               var WalletTokenBalance = await tokenContract.methods.balanceOf(WalletAddress).call();
-              var WalletTokenBalance2 = await tokenContract.methods.balanceOf(WalletAddress2).call();
 
               var decimals = await tokenContract.methods.decimals().call();
               var adjustedBalance = WalletTokenBalance * 10 ** -decimals;
 
-              var decimals2 = await tokenContract.methods.decimals().call();
-              var adjustedBalance2 = WalletTokenBalance2 * 10 ** -decimals2;
 
-              var adjustedBalance3 = adjustedBalance + adjustedBalance2;
-              $('#result2').text(Number(adjustedBalance3.toFixed(0)).toLocaleString()) 
+              $('#result2').text(Number(adjustedBalance.toFixed(0)).toLocaleString()) 
 }
 
 async function setTotalSupply() {
@@ -70,17 +65,13 @@ async function setTotalSupply() {
               var totalSupply = WalletTokenBalance * 10 ** -decimals;
 
               var WalletTokenBalance1 = await tokenContract.methods.balanceOf(WalletAddress).call();
-              var WalletTokenBalance2 = await tokenContract.methods.balanceOf(WalletAddress2).call();
 
               var decimals1 = await tokenContract.methods.decimals().call();
               var adjustedBalance1 = WalletTokenBalance1 * 10 ** -decimals1;
 
-              var decimals2 = await tokenContract.methods.decimals().call();
-              var adjustedBalance2 = WalletTokenBalance2 * 10 ** -decimals2;
-
               console.log(totalSupply);
 
-              var circulatingSupply = totalSupply - (adjustedBalance1 + adjustedBalance2)
+              var circulatingSupply = totalSupply - adjustedBalance1;
               $('#result3').text(Number(circulatingSupply.toFixed(0)).toLocaleString()) 
 
               var marketcap = totalSupply * tokenPrice;
